@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="tsd_ClassicsHeader">
+        <attr name="tsd_srlClassicsSpinnerStyle" />
+        <attr name="tsd_srlPrimaryColor" />
+        <attr name="tsd_srlAccentColor" />
+        <attr name="tsd_srlFinishDuration" />
+        <attr name="tsd_srlDrawableArrow" />
+        <attr name="tsd_srlDrawableProgress" />
+        <attr name="tsd_srlDrawableMarginRight" />
+        <attr name="tsd_srlDrawableSize" />
+        <attr name="tsd_srlDrawableArrowSize" />
+        <attr name="tsd_srlDrawableProgressSize" />
+        <attr name="tsd_srlTextSizeTitle" />
+        <attr name="tsd_srlTextSizeTime" />
+        <attr name="tsd_srlTextTimeMarginTop" format="dimension" />
+        <attr name="tsd_srlEnableLastTime" format="boolean" />
+    </declare-styleable>
+</resources>
