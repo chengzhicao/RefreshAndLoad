@@ -11,19 +11,19 @@
         android:layout_height="wrap_content"
         android:gravity="center">
 
-        <!--<ImageView-->
-            <!--android:id="@+id/iv_foot_refresh"-->
-            <!--android:layout_width="20dp"-->
-            <!--android:layout_height="20dp"-->
-            <!--android:scaleType="fitXY"-->
-            <!--android:src="@drawable/refresh" />-->
-
-        <ProgressBar
-            android:id="@+id/foot_progressbar"
+        <ImageView
+            android:id="@+id/iv_foot_refresh"
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:indeterminateDuration="1000"
-            android:indeterminateDrawable="@drawable/refresh" />
+            android:scaleType="fitXY"
+            android:src="@drawable/refresh" />
+
+        <!--<ProgressBar-->
+            <!--android:id="@+id/foot_progressbar"-->
+            <!--android:layout_width="20dp"-->
+            <!--android:layout_height="20dp"-->
+            <!--android:indeterminateDuration="1000"-->
+            <!--android:indeterminateDrawable="@drawable/refresh" />-->
 
         <TextView
             android:id="@+id/tv_foot_tip"

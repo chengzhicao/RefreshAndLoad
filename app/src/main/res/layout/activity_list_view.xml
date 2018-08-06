@@ -19,26 +19,13 @@
 
     </com.cheng.swipe.SwipeRefreshLoadLayout>
 
-    <Button
+    <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="200dp"
-        android:onClick="doRefresh"
-        android:text="主动刷新" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-
-        android:layout_marginTop="300dp"
-        android:onClick="stopRefresh"
-        android:text="停止刷新" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_marginTop="200dp"
-        android:onClick="stopLoadMore"
-        android:text="停止加载" />
+        android:layout_marginBottom="100dp"
+        android:layout_marginRight="30dp"
+        android:onClick="doRefresh"
+        android:src="@mipmap/refresh_active" />
 </RelativeLayout>

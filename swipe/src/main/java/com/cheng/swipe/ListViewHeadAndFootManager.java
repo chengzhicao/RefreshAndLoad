@@ -1,16 +1,16 @@
 package com.cheng.swipe;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
 import android.widget.AbsListView;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
-class LvHeadAndFootView implements Swipe.OnChangeViewHeight, Swipe.OnChangeViewTip {
+class ListViewHeadAndFootManager implements Swipe.OnChangeViewHeight, Swipe.OnChangeViewTip {
     private ViewGroup footView;
     private TextView tvFootTip;
     private ViewGroup headView;
@@ -18,11 +18,14 @@ class LvHeadAndFootView implements Swipe.OnChangeViewHeight, Swipe.OnChangeViewT
     private Context mContext;
     private int refreshViewHeight;
     private ImageView ivHeadArrow;
-    private ProgressBar headProgressBar;
-    private ProgressBar footProgressBar;
+    private ImageView ivHeadRefresh;
+    private ImageView ivFootRefresh;
+    private TextView tvRefreshTime;
+    private SwipeRefreshLoadLayout mySwipe;
 
-    LvHeadAndFootView(Context context, SwipeRefreshLoadLayout mySwipe) {
+    ListViewHeadAndFootManager(Context context, SwipeRefreshLoadLayout mySwipe) {
         this.mContext = context;
+        this.mySwipe = mySwipe;
         if (mySwipe != null) {
             refreshViewHeight = mySwipe.REFRESH_VIEW_HEIGHT_DP;
             mySwipe.setOnChangeViewTip(this);
@@ -40,23 +43,33 @@ class LvHeadAndFootView implements Swipe.OnChangeViewHeight, Swipe.OnChangeViewT
         headView.setLayoutParams(headViewLayoutParams);
         tvHeadTip = headView.findViewById(R.id.tv_head_tip);
         ivHeadArrow = headView.findViewById(R.id.iv_head_arrow);
-        headProgressBar = headView.findViewById(R.id.head_progressbar);
         ivHeadArrow.animate().setInterpolator(new LinearInterpolator());
+        ivHeadRefresh = headView.findViewById(R.id.iv_head_refresh);
+        ivHeadRefresh.animate().setInterpolator(new LinearInterpolator());
+        tvRefreshTime = headView.findViewById(R.id.tv_refresh_time);
+        if (!TextUtils.isEmpty(Swipe.getLastRefreshTime(mContext))) {
+            this.tvRefreshTime.setText("最后更新：" + Swipe.getLastRefreshTime(mContext));
+        } else {
+            this.tvRefreshTime.setVisibility(View.GONE);
+        }
         return headView;
     }
 
     public View getFootView() {
         footView = (ViewGroup) LayoutInflater.from(mContext).inflate(R.layout.srll_foot, null, false);
+        footView.setVisibility(mySwipe.footViewVisibility);
         View childAt = footView.getChildAt(0);
+        childAt.setVisibility(mySwipe.footViewVisibility);
         ViewGroup.LayoutParams childLayoutParams = childAt.getLayoutParams();
         childLayoutParams.height = refreshViewHeight;
         //设置底部加载子视图高度
         childAt.setLayoutParams(childLayoutParams);
-        footViewLayoutParams = new AbsListView.LayoutParams(-1, refreshViewHeight);
+        footViewLayoutParams = new AbsListView.LayoutParams(-1, 0);
         //设置底部加载父视图高度
         footView.setLayoutParams(footViewLayoutParams);
         tvFootTip = footView.findViewById(R.id.tv_foot_tip);
-        footProgressBar = footView.findViewById(R.id.foot_progressbar);
+        ivFootRefresh = footView.findViewById(R.id.iv_foot_refresh);
+        ivFootRefresh.animate().setInterpolator(new LinearInterpolator());
         return footView;
     }
 
@@ -126,15 +139,13 @@ class LvHeadAndFootView implements Swipe.OnChangeViewHeight, Swipe.OnChangeViewT
             if (tvFootTip != null) {
                 tvFootTip.setText(tips);
             }
-            if (footProgressBar != null) {
+            if (ivFootRefresh != null) {
                 switch (tips) {
                     case SwipeRefreshLoadLayout.LOADING:
-                        footProgressBar.setIndeterminateDrawable(mContext.getResources().getDrawable(R.drawable.progressbar_refresh));
-                        footProgressBar.setProgressDrawable(mContext.getResources().getDrawable(R.drawable.progressbar_refresh));
+                        ivFootRefresh.animate().rotation(360 * 60 * 10).setDuration(10 * 60 * 1000);
                         break;
                     default:
-                        footProgressBar.setIndeterminateDrawable(mContext.getResources().getDrawable(R.drawable.refresh));
-                        footProgressBar.setProgressDrawable(mContext.getResources().getDrawable(R.drawable.refresh));
+                        ivFootRefresh.animate().cancel();
                         break;
                 }
             }
@@ -148,25 +159,35 @@ class LvHeadAndFootView implements Swipe.OnChangeViewHeight, Swipe.OnChangeViewT
             if (tvHeadTip != null) {
                 tvHeadTip.setText(tips);
             }
-            if (ivHeadArrow != null && headProgressBar != null) {
+            if (ivHeadArrow != null && ivHeadRefresh != null) {
                 switch (tips) {
                     case SwipeRefreshLoadLayout.PULL_DOWN:
                         ivHeadArrow.setVisibility(View.VISIBLE);
-                        headProgressBar.setVisibility(View.GONE);
+                        ivHeadRefresh.setVisibility(View.GONE);
                         ivHeadArrow.animate().rotation(0);
                         break;
                     case SwipeRefreshLoadLayout.RELEASE_REFRESH:
                         ivHeadArrow.setVisibility(View.VISIBLE);
-                        headProgressBar.setVisibility(View.GONE);
+                        ivHeadRefresh.setVisibility(View.GONE);
                         ivHeadArrow.animate().rotation(180);
                         break;
                     case SwipeRefreshLoadLayout.REFRESHING:
                         ivHeadArrow.setVisibility(View.GONE);
-                        headProgressBar.setVisibility(View.VISIBLE);
+                        ivHeadRefresh.setVisibility(View.VISIBLE);
+                        ivHeadArrow.animate().rotation(0);
+                        ivHeadRefresh.animate().rotation(360 * 60 * 10).setDuration(10 * 60 * 1000);
+                        break;
+                    case SwipeRefreshLoadLayout.REFRESH_FINISH:
+                        String time = Swipe.saveLastRefreshTime(mContext);
+                        if (tvRefreshTime.getVisibility() != View.VISIBLE) {
+                            tvRefreshTime.setVisibility(View.VISIBLE);
+                        }
+                        tvRefreshTime.setText("最后更新：" + time);
+                        ivHeadRefresh.animate().cancel();
                         break;
                     default:
                         ivHeadArrow.animate().cancel();
-                        headProgressBar.setVisibility(View.GONE);
+                        ivHeadRefresh.setVisibility(View.GONE);
                         break;
                 }
             }

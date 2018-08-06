@@ -5,17 +5,17 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.util.AttributeSet;
 import android.view.View;
 
-public class MyRecyclerViewLayoutManager extends LinearLayoutManager {
+public class SwipeLinearLayoutManager extends LinearLayoutManager {
 
-    public MyRecyclerViewLayoutManager(Context context) {
+    public SwipeLinearLayoutManager(Context context) {
         super(context);
     }
 
-    public MyRecyclerViewLayoutManager(Context context, int orientation, boolean reverseLayout) {
+    public SwipeLinearLayoutManager(Context context, int orientation, boolean reverseLayout) {
         super(context, orientation, reverseLayout);
     }
 
-    public MyRecyclerViewLayoutManager(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public SwipeLinearLayoutManager(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 

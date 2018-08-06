@@ -10,12 +10,12 @@
         android:layout_height="wrap_content"
         android:gravity="center">
 
-        <ProgressBar
-            android:id="@+id/head_progressbar"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:indeterminateDuration="1000"
-            android:indeterminateDrawable="@drawable/progressbar_refresh" />
+        <!--<ProgressBar-->
+        <!--android:id="@+id/head_progressbar"-->
+        <!--android:layout_width="20dp"-->
+        <!--android:layout_height="20dp"-->
+        <!--android:indeterminateDuration="1000"-->
+        <!--android:indeterminateDrawable="@drawable/progressbar_refresh" />-->
 
         <ImageView
             android:id="@+id/iv_head_arrow"
@@ -24,13 +24,12 @@
             android:scaleType="fitXY"
             android:src="@drawable/arrow" />
 
-        <!--<ImageView-->
-            <!--android:id="@+id/iv_head_refresh"-->
-            <!--android:layout_width="20dp"-->
-            <!--android:layout_height="20dp"-->
-            <!--android:scaleType="fitXY"-->
-            <!--android:src="@drawable/refresh"-->
-            <!--android:visibility="gone" />-->
+        <ImageView
+            android:id="@+id/iv_head_refresh"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/refresh" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -46,9 +45,10 @@
                 android:text="下拉刷新" />
 
             <TextView
+                android:id="@+id/tv_refresh_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="上次更新"
+                android:text="最后更新"
                 android:textSize="10sp" />
         </LinearLayout>
     </LinearLayout>

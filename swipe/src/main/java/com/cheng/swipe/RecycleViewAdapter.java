@@ -3,20 +3,20 @@ package com.cheng.swipe;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 /**
  * Created by cheng on 2018/3/27.
  */
 
-public abstract class RefreshRecycleViewAdapter extends RecyclerView.Adapter implements Swipe.OnChangeViewTip, Swipe.OnChangeViewHeight {
+public abstract class RecycleViewAdapter extends RecyclerView.Adapter implements Swipe.OnChangeViewTip, Swipe.OnChangeViewHeight {
     /**
      * 底部加载类型
      */
@@ -42,7 +42,7 @@ public abstract class RefreshRecycleViewAdapter extends RecyclerView.Adapter imp
 
     public abstract void onSetViewHolder(@NonNull RecyclerView.ViewHolder holder, int position);
 
-    public RefreshRecycleViewAdapter(Context context, SwipeRefreshLoadLayout mySwipe) {
+    public RecycleViewAdapter(Context context, SwipeRefreshLoadLayout mySwipe) {
         this.mContext = context;
         this.mySwipe = mySwipe;
         if (mySwipe != null) {
@@ -103,12 +103,12 @@ public abstract class RefreshRecycleViewAdapter extends RecyclerView.Adapter imp
     private class FootViewHolder extends RecyclerView.ViewHolder {
         private TextView tvFootTip;
         private ViewGroup footView;
-        private ProgressBar footProgressBar;
-
+        private ImageView ivFootRefresh;
 
         private FootViewHolder(View itemView, boolean isFromSelf) {
             super(itemView);
             this.footView = (ViewGroup) itemView;
+            this.footView.setVisibility(mySwipe.footViewVisibility);
             if (isFromSelf) {
                 ViewGroup childAt = (ViewGroup) footView.getChildAt(0);
                 ViewGroup.LayoutParams childLayoutParams = childAt.getLayoutParams();
@@ -116,7 +116,8 @@ public abstract class RefreshRecycleViewAdapter extends RecyclerView.Adapter imp
                 //设置底部加载子视图高度
                 childAt.setLayoutParams(childLayoutParams);
                 this.tvFootTip = footView.findViewById(R.id.tv_foot_tip);
-                this.footProgressBar = footView.findViewById(R.id.foot_progressbar);
+                this.ivFootRefresh = footView.findViewById(R.id.iv_foot_refresh);
+                this.ivFootRefresh.animate().setInterpolator(new LinearInterpolator());
                 LinearLayout llLoadMore = footView.findViewById(R.id.ll_load_more);
                 llLoadMore.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -135,7 +136,8 @@ public abstract class RefreshRecycleViewAdapter extends RecyclerView.Adapter imp
         private ViewGroup headView;
         private TextView tvHeadTip;
         private ImageView ivHeadArrow;
-        private ProgressBar headProgressBar;
+        private TextView tvRefreshTime;
+        private ImageView ivHeadRefresh;
 
         private HeadViewHolder(View itemView, boolean isFromSelf) {
             super(itemView);
@@ -148,7 +150,14 @@ public abstract class RefreshRecycleViewAdapter extends RecyclerView.Adapter imp
                 this.tvHeadTip = headView.findViewById(R.id.tv_head_tip);
                 this.ivHeadArrow = headView.findViewById(R.id.iv_head_arrow);
                 this.ivHeadArrow.animate().setInterpolator(new LinearInterpolator());
-                this.headProgressBar = headView.findViewById(R.id.head_progressbar);
+                this.ivHeadRefresh = headView.findViewById(R.id.iv_head_refresh);
+                this.ivHeadRefresh.animate().setInterpolator(new LinearInterpolator());
+                this.tvRefreshTime = headView.findViewById(R.id.tv_refresh_time);
+                if (!TextUtils.isEmpty(Swipe.getLastRefreshTime(mContext))) {
+                    this.tvRefreshTime.setText("最后更新：" + Swipe.getLastRefreshTime(mContext));
+                } else {
+                    this.tvRefreshTime.setVisibility(View.GONE);
+                }
             }
             headViewLayoutParams = new RecyclerView.LayoutParams(-1, 0);
             headView.setLayoutParams(headViewLayoutParams);
@@ -162,15 +171,13 @@ public abstract class RefreshRecycleViewAdapter extends RecyclerView.Adapter imp
             if (footViewHolder.tvFootTip != null) {
                 footViewHolder.tvFootTip.setText(tips);
             }
-            if (footViewHolder.footProgressBar != null) {
+            if (footViewHolder.ivFootRefresh != null) {
                 switch (tips) {
                     case SwipeRefreshLoadLayout.LOADING:
-                        footViewHolder.footProgressBar.setIndeterminateDrawable(mContext.getResources().getDrawable(R.drawable.progressbar_refresh));
-                        footViewHolder.footProgressBar.setProgressDrawable(mContext.getResources().getDrawable(R.drawable.progressbar_refresh));
+                        footViewHolder.ivFootRefresh.animate().rotation(360 * 60 * 10).setDuration(10 * 60 * 1000);
                         break;
                     default:
-                        footViewHolder.footProgressBar.setIndeterminateDrawable(mContext.getResources().getDrawable(R.drawable.refresh));
-                        footViewHolder.footProgressBar.setProgressDrawable(mContext.getResources().getDrawable(R.drawable.refresh));
+                        footViewHolder.ivFootRefresh.animate().cancel();
                         break;
                 }
             }
@@ -187,27 +194,35 @@ public abstract class RefreshRecycleViewAdapter extends RecyclerView.Adapter imp
             if (headViewHolder.tvHeadTip != null) {
                 headViewHolder.tvHeadTip.setText(tips);
             }
-            if (headViewHolder.ivHeadArrow != null && headViewHolder.headProgressBar != null) {
+            if (headViewHolder.ivHeadArrow != null && headViewHolder.ivHeadRefresh != null) {
                 switch (tips) {
                     case SwipeRefreshLoadLayout.PULL_DOWN:
                         headViewHolder.ivHeadArrow.setVisibility(View.VISIBLE);
-                        headViewHolder.headProgressBar.setVisibility(View.GONE);
-                        headViewHolder.ivHeadArrow.animate().cancel();
+                        headViewHolder.ivHeadRefresh.setVisibility(View.GONE);
                         headViewHolder.ivHeadArrow.animate().rotation(0);
                         break;
                     case SwipeRefreshLoadLayout.RELEASE_REFRESH:
                         headViewHolder.ivHeadArrow.setVisibility(View.VISIBLE);
-                        headViewHolder.headProgressBar.setVisibility(View.GONE);
-                        headViewHolder.ivHeadArrow.animate().cancel();
+                        headViewHolder.ivHeadRefresh.setVisibility(View.GONE);
                         headViewHolder.ivHeadArrow.animate().rotation(180);
                         break;
                     case SwipeRefreshLoadLayout.REFRESHING:
                         headViewHolder.ivHeadArrow.setVisibility(View.GONE);
-                        headViewHolder.headProgressBar.setVisibility(View.VISIBLE);
+                        headViewHolder.ivHeadRefresh.setVisibility(View.VISIBLE);
+                        headViewHolder.ivHeadArrow.animate().rotation(0);
+                        headViewHolder.ivHeadRefresh.animate().rotation(360 * 60 * 10).setDuration(10 * 60 * 1000);
+                        break;
+                    case SwipeRefreshLoadLayout.REFRESH_FINISH:
+                        String time = Swipe.saveLastRefreshTime(mContext);
+                        if (headViewHolder.tvRefreshTime.getVisibility() != View.VISIBLE) {
+                            headViewHolder.tvRefreshTime.setVisibility(View.VISIBLE);
+                        }
+                        headViewHolder.tvRefreshTime.setText("最后更新：" + time);
+                        headViewHolder.ivHeadRefresh.animate().cancel();
                         break;
                     default:
                         headViewHolder.ivHeadArrow.animate().cancel();
-                        headViewHolder.headProgressBar.setVisibility(View.GONE);
+                        headViewHolder.ivHeadRefresh.setVisibility(View.GONE);
                         break;
                 }
             }

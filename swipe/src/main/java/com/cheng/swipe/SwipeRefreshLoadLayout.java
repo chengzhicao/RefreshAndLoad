@@ -171,17 +171,11 @@ public class SwipeRefreshLoadLayout extends SwipeRefreshLayout {
     }
 
     private void ensureTargetView() {
-        if (listView == null) {
+        if (recyclerView == null) {
             for (int i = 0; i < getChildCount(); i++) {
                 View child = getChildAt(i);
-                if (child instanceof ListView) {
-                    listView = (ListView) child;
-                    initTargetView();
-                    break;
-                }
                 if (child instanceof RecyclerView) {
                     recyclerView = (RecyclerView) child;
-                    initTargetView();
                     break;
                 }
             }
@@ -190,7 +184,7 @@ public class SwipeRefreshLoadLayout extends SwipeRefreshLayout {
 
     private void initTargetView() {
         if (listView != null) {
-            LvHeadAndFootView lvHeadAndFootView = new LvHeadAndFootView(mContext, this);
+            ListViewHeadAndFootManager lvHeadAndFootView = new ListViewHeadAndFootManager(mContext, this);
             if (headView == null) {
                 headView = (ViewGroup) lvHeadAndFootView.getHeadView();
             } else {
@@ -204,6 +198,53 @@ public class SwipeRefreshLoadLayout extends SwipeRefreshLayout {
             listView.addHeaderView(headView);
             listView.addFooterView(footView);
         }
+    }
+
+    /**
+     * 设置ListView的头和尾View，必须在setAdapter之前调用
+     *
+     * @param listView
+     */
+    public void setListViewHeadAndFoot(ListView listView) {
+        this.listView = listView;
+        initTargetView();
+    }
+
+    /**
+     * 获取刷新状态
+     *
+     * @return
+     */
+    public boolean isRefreshing() {
+        return isRefreshing;
+    }
+
+    /**
+     * 获取加载状态
+     *
+     * @return
+     */
+    public boolean isLoading() {
+        return isLoading;
+    }
+
+    int footViewVisibility = View.VISIBLE;
+
+    /**
+     * 设置底部footView的可见性
+     *
+     * @param visibility
+     */
+    public void setFootViewVisibility(int visibility) {
+        footViewVisibility = visibility;
+        if (footView != null) {
+            footView.setVisibility(visibility);
+            for (int i = 0; i < footView.getChildCount(); i++) {
+                View childAt = footView.getChildAt(i);
+                childAt.setVisibility(footViewVisibility);
+            }
+        }
+
     }
 
     private ViewGroup headView;
@@ -227,7 +268,7 @@ public class SwipeRefreshLoadLayout extends SwipeRefreshLayout {
     }
 
     /**
-     * 自定义底部View
+     * 自定义底部footView
      *
      * @param footView
      */
@@ -256,7 +297,7 @@ public class SwipeRefreshLoadLayout extends SwipeRefreshLayout {
                 } else {
                     if (action == ACTION_PULL_DOWN && !isRefreshing) {
                         onPullDownBack(dy);
-                    } else if (action == ACTION_PULL_UP && !isLoading) {
+                    } else if (action == ACTION_PULL_UP && !isLoading && footViewVisibility == VISIBLE) {
                         onPullUp(dy);
                         if (recyclerView != null) {
                             recyclerView.scrollBy(0, -dy);
@@ -401,7 +442,7 @@ public class SwipeRefreshLoadLayout extends SwipeRefreshLayout {
             }
         }
         //上拉操作
-        if (dyUnconsumed > 0 && !isLoading) {
+        if (dyUnconsumed > 0 && !isLoading && footViewVisibility == VISIBLE) {
             mTotalUnconsumed2 += -dyUnconsumed;
             onPullUp(dyUnconsumed);
         }
@@ -525,14 +566,14 @@ public class SwipeRefreshLoadLayout extends SwipeRefreshLayout {
                 onChangeViewTip.changeHeadTips(RELEASE_REFRESH);
             }
             if (onSlideActionListener != null) {
-                onSlideActionListener.releaseRefresh();
+                onSlideActionListener.releaseRefreshAction();
             }
         } else {
             if (onChangeViewTip != null) {
                 onChangeViewTip.changeHeadTips(PULL_DOWN);
             }
             if (onSlideActionListener != null) {
-                onSlideActionListener.downRefresh();
+                onSlideActionListener.downRefreshAction();
             }
         }
     }
@@ -543,14 +584,14 @@ public class SwipeRefreshLoadLayout extends SwipeRefreshLayout {
                 onChangeViewTip.changeFootTips(RELEASE_LOAD);
             }
             if (onSlideActionListener != null) {
-                onSlideActionListener.releaseLoad();
+                onSlideActionListener.releaseLoadAction();
             }
         } else {
             if (onChangeViewTip != null) {
                 onChangeViewTip.changeFootTips(PULL_UP);
             }
             if (onSlideActionListener != null) {
-                onSlideActionListener.upLoad();
+                onSlideActionListener.upLoadAction();
             }
         }
     }

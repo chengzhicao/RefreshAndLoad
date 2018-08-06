@@ -36,5 +36,12 @@
             android:layout_marginTop="20dp"
             android:onClick="toListView"
             android:text="to ListView" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:onClick="toTest"
+            android:text="to Test" />
     </LinearLayout>
 </RelativeLayout>

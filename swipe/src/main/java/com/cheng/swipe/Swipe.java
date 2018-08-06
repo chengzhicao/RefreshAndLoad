@@ -1,29 +1,34 @@
 package com.cheng.swipe;
 
+import android.content.Context;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class Swipe {
     /**
      * 上拉和下拉时滑动监听
      */
     public interface OnSlideActionListener {
         /**
-         * 释放刷新
+         * 释放刷新行为
          */
-        void releaseRefresh();
+        void releaseRefreshAction();
 
         /**
-         * 下拉刷新
+         * 下拉刷新行为
          */
-        void downRefresh();
+        void downRefreshAction();
 
         /**
-         * 释放加载更多
+         * 释放加载行为
          */
-        void releaseLoad();
+        void releaseLoadAction();
 
         /**
-         * 上拉加载
+         * 上拉加载行为
          */
-        void upLoad();
+        void upLoadAction();
     }
 
     /**
@@ -78,5 +83,17 @@ public class Swipe {
          * @param footViewHeight
          */
         void changeFootViewHeight(int footViewHeight);
+    }
+
+    static String saveLastRefreshTime(Context context) {
+        SimpleDateFormat sf = new SimpleDateFormat("MM-dd hh:mm:ss");
+        String formatTime = sf.format(new Date());
+        context.getSharedPreferences("SwipeRefreshLoadLayout", Context.MODE_PRIVATE).edit().putString("updateTime", formatTime).apply();
+        return formatTime;
+    }
+
+    static String getLastRefreshTime(Context context) {
+        return context.getSharedPreferences("SwipeRefreshLoadLayout", Context.MODE_PRIVATE)
+                .getString("updateTime", "");
     }
 }

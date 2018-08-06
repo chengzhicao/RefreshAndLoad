@@ -1,6 +1,7 @@
 package com.cheng.refreshandload;
 
 import android.support.annotation.NonNull;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
@@ -11,13 +12,14 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.cheng.swipe.MyRecyclerViewLayoutManager;
-import com.cheng.swipe.RefreshRecycleViewAdapter;
+import com.cheng.swipe.RecycleViewAdapter;
 import com.cheng.swipe.Swipe;
+import com.cheng.swipe.SwipeLinearLayoutManager;
 import com.cheng.swipe.SwipeRefreshLoadLayout;
 
 public class RecyclerViewActivity extends AppCompatActivity implements Swipe.OnRefreshAndLoadListener, Swipe.OnSlideActionListener {
-    private RecyclerView rvData;
+    private String TAG = this.getClass().getSimpleName();
+    private RecyclerView recyclerView;
     private SwipeRefreshLoadLayout mySwipe;
 
     @Override
@@ -25,15 +27,23 @@ public class RecyclerViewActivity extends AppCompatActivity implements Swipe.OnR
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recycler_view);
 
-        mySwipe = findViewById(R.id.srl);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle("使用RecyclerView");
+        }
+
+        mySwipe = findViewById(R.id.srll);
         mySwipe.setRefreshStyle(SwipeRefreshLoadLayout.SPREAD);
         mySwipe.setOnRefreshAndLoadListener(this);
         mySwipe.setOnSlideActionListener(this);
+//        mySwipe.setFootViewVisibility(View.GONE);
+//        mySwipe.setFootView((ViewGroup) LayoutInflater.from(this).inflate(R.layout.foot_layout,null));
+//        mySwipe.setHeadView((ViewGroup) LayoutInflater.from(this).inflate(R.layout.head_layout,null));
 
-        rvData = findViewById(R.id.rcv);
-        rvData.setNestedScrollingEnabled(true);
-        rvData.setLayoutManager(new MyRecyclerViewLayoutManager(this));
-        RefreshRecycleViewAdapter recycleViewRefreshAdapter = new RefreshRecycleViewAdapter(this, mySwipe) {
+        recyclerView = findViewById(R.id.rcv);
+        recyclerView.setNestedScrollingEnabled(true);
+        recyclerView.setLayoutManager(new SwipeLinearLayoutManager(this));
+        RecycleViewAdapter recycleViewRefreshAdapter = new RecycleViewAdapter(this, mySwipe) {
 
             @Override
             public int getCounts() {
@@ -88,7 +98,7 @@ public class RecyclerViewActivity extends AppCompatActivity implements Swipe.OnR
                 }
             }
         };
-        rvData.setAdapter(recycleViewRefreshAdapter);
+        recyclerView.setAdapter(recycleViewRefreshAdapter);
     }
 
     /**
@@ -97,57 +107,87 @@ public class RecyclerViewActivity extends AppCompatActivity implements Swipe.OnR
      * @param view
      */
     public void doRefresh(View view) {
-        Log.i("jfiowejigwe", "主动刷新");
-        mySwipe.doRefresh();
+        if (!mySwipe.isRefreshing()) {
+            Log.i(TAG, "主动刷新");
+            mySwipe.doRefresh();
+        }
     }
 
     /**
      * 停止刷新
-     *
-     * @param view
      */
-    public void stopRefresh(View view) {
-        Log.i("jfiowejigwe", "停止刷新");
+    public void stopRefresh() {
+        Log.i(TAG, "停止刷新");
         mySwipe.finishRefresh();
     }
 
     /**
      * 停止加载
-     *
-     * @param view
      */
-    public void stopLoadMore(View view) {
-        Log.i("jfiowejigwe", "停止加载更多");
+    public void stopLoadMore() {
+        Log.i(TAG, "停止加载更多");
         mySwipe.finishLoadMore();
     }
 
     @Override
     public void refresh() {
-        Log.i("jfiowejigwe", "正在刷新。。。");
+        Log.i(TAG, "正在刷新。。。");
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    sleep(3000);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            stopRefresh();
+                        }
+                    });
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
     }
 
     @Override
     public void loadMore() {
-        Log.i("jfiowejigwe", "正在加载更多。。。");
+        Log.i(TAG, "正在加载更多。。。");
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    sleep(3000);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            stopLoadMore();
+                        }
+                    });
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
     }
 
     @Override
-    public void releaseRefresh() {
-        Log.i("jfiowejigwe", "释放刷新");
+    public void releaseRefreshAction() {
+        Log.i(TAG, "释放刷新");
     }
 
     @Override
-    public void downRefresh() {
-        Log.i("jfiowejigwe", "下拉刷新");
+    public void downRefreshAction() {
+        Log.i(TAG, "下拉刷新");
     }
 
     @Override
-    public void releaseLoad() {
-        Log.i("jfiowejigwe", "释放加载更多");
+    public void releaseLoadAction() {
+        Log.i(TAG, "释放加载更多");
     }
 
     @Override
-    public void upLoad() {
-        Log.i("jfiowejigwe", "上拉加载更多");
+    public void upLoadAction() {
+        Log.i(TAG, "上拉加载更多");
     }
 }
