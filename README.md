@@ -1,12 +1,12 @@
-# &emsp;&emsp;SwipeRefreshLoadLayout，一个能同时支持RecyclerView和ListView的下拉刷新和上拉加载的布局
+# SwipeRefreshLoadLayout，一个能同时支持RecyclerView和ListView的下拉刷新和上拉加载的布局
 
-![使用RecyclerView时](https://upload-images.jianshu.io/upload_images/6753190-a64d567102c7a3a1.gif?imageMogr2/auto-orient/strip)
+![使用RecyclerView的延展样式](https://upload-images.jianshu.io/upload_images/6753190-a64d567102c7a3a1.gif?imageMogr2/auto-orient/strip)
 
-![使用RecyclerView并使用SwipeRefreshLayout原生效果时](https://upload-images.jianshu.io/upload_images/6753190-380b7377d116c5ef.gif?imageMogr2/auto-orient/strip)
+![使用RecyclerView并使用SwipeRefreshLayout的原生样式](https://upload-images.jianshu.io/upload_images/6753190-380b7377d116c5ef.gif?imageMogr2/auto-orient/strip)
 
-![使用ListView时](https://upload-images.jianshu.io/upload_images/6753190-fb54b6b50cf7c2e6.gif?imageMogr2/auto-orient/strip)
+![使用ListView的延展样式](https://upload-images.jianshu.io/upload_images/6753190-fb54b6b50cf7c2e6.gif?imageMogr2/auto-orient/strip)
 
-![使用ListView并使用SwipeRefreshLayout原生效果时](https://upload-images.jianshu.io/upload_images/6753190-d24bd451355a98c7.gif?imageMogr2/auto-orient/strip)
+![使用ListView并使用SwipeRefreshLayout的原生样式](https://upload-images.jianshu.io/upload_images/6753190-d24bd451355a98c7.gif?imageMogr2/auto-orient/strip)
 
 # 1.功能
 
