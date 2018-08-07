@@ -38,11 +38,11 @@ public class RecyclerViewActivity extends AppCompatActivity implements Swipe.OnR
         mySwipe.setOnSlideActionListener(this);
 //        mySwipe.setFootViewVisibility(View.GONE);
 //        mySwipe.setFootView((ViewGroup) LayoutInflater.from(this).inflate(R.layout.foot_layout,null));
-//        mySwipe.setHeadView((ViewGroup) LayoutInflater.from(this).inflate(R.layout.head_layout,null));
+//        mySwipe.setHeadView((ViewGroup) LayoutInflater.from(this).inflate(R.layout.head_layout, null), R.id.headId);
 
         recyclerView = findViewById(R.id.rcv);
         recyclerView.setNestedScrollingEnabled(true);
-        recyclerView.setLayoutManager(new SwipeLinearLayoutManager(this));
+        recyclerView.setLayoutManager(new SwipeLinearLayoutManager(this, mySwipe));
         RecycleViewAdapter recycleViewRefreshAdapter = new RecycleViewAdapter(this, mySwipe) {
 
             @Override

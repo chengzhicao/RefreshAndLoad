@@ -35,6 +35,7 @@ class ListViewHeadAndFootManager implements Swipe.OnChangeViewHeight, Swipe.OnCh
 
     public View getHeadView() {
         headView = (ViewGroup) LayoutInflater.from(mContext).inflate(R.layout.srll_head, null, false);
+        mySwipe.headViewId = headView.getId();
         headChildView = headView.getChildAt(0);
         headChildViewLayoutParams = headChildView.getLayoutParams();
         headChildViewLayoutParams.height = 0;

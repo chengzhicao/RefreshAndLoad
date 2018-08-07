@@ -30,8 +30,8 @@ public class ListViewActivity extends AppCompatActivity implements Swipe.OnRefre
         mySwipe = findViewById(R.id.srll);
         listView = findViewById(R.id.listview);
         mySwipe.setRefreshStyle(SwipeRefreshLoadLayout.CIRCLE);
-//        mySwipe.setFootView((ViewGroup) LayoutInflater.from(this).inflate(R.layout.rrv_bottom_load2, null));
-//        mySwipe.setHeadView((ViewGroup) LayoutInflater.from(this).inflate(R.layout.rrv_top_head2, null));
+//        mySwipe.setFootView((ViewGroup) LayoutInflater.from(this).inflate(R.layout.foot_layout, null));
+//        mySwipe.setHeadView((ViewGroup) LayoutInflater.from(this).inflate(R.layout.head_layout, null),R.id.headId);
         mySwipe.setOnRefreshAndLoadListener(this);
 
         //注意顺序，设置headView和footView要在setAdapter之前

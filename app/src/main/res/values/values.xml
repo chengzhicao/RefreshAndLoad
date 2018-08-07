@@ -16,4 +16,5 @@
         <attr name="tsd_srlTextTimeMarginTop" format="dimension" />
         <attr name="tsd_srlEnableLastTime" format="boolean" />
     </declare-styleable>
+    <item name="headId" type="id" />
 </resources>

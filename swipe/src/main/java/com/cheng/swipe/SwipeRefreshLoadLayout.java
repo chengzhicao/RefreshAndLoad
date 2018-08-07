@@ -2,6 +2,7 @@ package com.cheng.swipe;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.ListViewCompat;
@@ -15,7 +16,17 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 public class SwipeRefreshLoadLayout extends SwipeRefreshLayout {
-    private int mTotalUnconsumed, mTotalUnconsumed2;
+
+    /**
+     * 下拉刷新时手指的滑动距离，意味着headView的height需要改变的大小
+     */
+    private int mTotalUnconsumed;
+
+    /**
+     * 上拉加载时手指的滑动距离，意味着footView的height需要改变的大小
+     */
+    private int mTotalUnconsumed2;
+
     private Context mContext;
     /**
      * 刷新后恢复原始位置所用时间
@@ -258,13 +269,17 @@ public class SwipeRefreshLoadLayout extends SwipeRefreshLayout {
         return footView;
     }
 
+    public int headViewId = -2;
+
     /**
      * 自定义头View
      *
      * @param headView
      */
-    public void setHeadView(ViewGroup headView) {
+    public void setHeadView(ViewGroup headView, @IdRes int id) {
         this.headView = headView;
+        this.headView.setId(id);
+        this.headViewId = id;
     }
 
     /**
@@ -285,7 +300,7 @@ public class SwipeRefreshLoadLayout extends SwipeRefreshLayout {
             case MotionEvent.ACTION_MOVE:
                 float currentY = ev.getY();
                 int dy = (int) (currentY - initialDownY);
-                if (dy >= 0) {
+                if (dy >= 0) {//dy>0说明此时执行的是下拉刷新或者上拉加载返回操作
                     if (action == ACTION_PULL_DOWN && !isRefreshing) {
                         onPullDown(dy);
                     } else if (action == ACTION_PULL_UP && !isLoading) {
@@ -294,7 +309,7 @@ public class SwipeRefreshLoadLayout extends SwipeRefreshLayout {
                             recyclerView.scrollBy(0, dy);
                         }
                     }
-                } else {
+                } else {//dy<0说明此时执行的是上拉加载或者下拉刷新返回操作
                     if (action == ACTION_PULL_DOWN && !isRefreshing) {
                         onPullDownBack(dy);
                     } else if (action == ACTION_PULL_UP && !isLoading && footViewVisibility == VISIBLE) {
@@ -367,7 +382,7 @@ public class SwipeRefreshLoadLayout extends SwipeRefreshLayout {
             case MotionEvent.ACTION_MOVE:
                 float y = ev.getY();
                 if (type) {
-                    if (y - initialDownY < 0) {
+                    if (y - initialDownY < 0) {//判断上滑或者下滑操作
                         initialDownY = y;
                         action = ACTION_PULL_UP;
                         return true;
@@ -400,12 +415,20 @@ public class SwipeRefreshLoadLayout extends SwipeRefreshLayout {
         mTotalUnconsumed2 = 0;
     }
 
+    /**
+     * 下拉刷新返回或者上拉加载返回时需要覆写的方法，
+     * 通过dy计算headView或者footView的height值，减小其高度，
+     * 通过consumed[]改变RecyclerView的滑动距离，使之不会滑动的过快造成滑动效果降低，
+     * 这里我们通过下拉刷新样式决定是调用父类的方法还是自己的方法，如果时需要原生样式，直接调用父类方法，
+     * 否则调用自己的方法
+     */
     @Override
     public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
         if (refreshStyle == CIRCLE) {
             super.onNestedPreScroll(target, dx, dy, consumed);
         } else if (refreshStyle == SPREAD) {
             if (dy > 0 && mTotalUnconsumed > 0) {
+                //下拉刷新返回操作
                 if (dy > mTotalUnconsumed) {
                     consumed[1] = dy - mTotalUnconsumed;
                     mTotalUnconsumed = 0;
@@ -417,7 +440,7 @@ public class SwipeRefreshLoadLayout extends SwipeRefreshLayout {
                 onPullDownBack(dy);
             }
         }
-        //上拉操作
+        //上拉加载返回操作
         if (dy < 0 && mTotalUnconsumed2 < 0) {
             if (dy < mTotalUnconsumed2) {
                 consumed[1] = mTotalUnconsumed2 - dy;
@@ -431,34 +454,47 @@ public class SwipeRefreshLoadLayout extends SwipeRefreshLayout {
         }
     }
 
+    /**
+     * 下拉刷新或者上拉加载时需要覆写的方法，
+     * 通过dyUnconsumed计算headView或者footView的height值，增大其高度，
+     * 通过下拉刷新样式决定是调用父类的方法还是自己的方法，如果时需要原生样式，直接调用父类方法，
+     * 否则调用自己的方法
+     */
     @Override
     public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
         if (refreshStyle == CIRCLE) {
             super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
         } else if (refreshStyle == SPREAD) {
+            //下拉刷新操作
             if (dyUnconsumed < 0 && !isRefreshing) {
                 mTotalUnconsumed += -dyUnconsumed;
                 onPullDown(dyUnconsumed);
             }
         }
-        //上拉操作
+        //上拉加载操作
         if (dyUnconsumed > 0 && !isLoading && footViewVisibility == VISIBLE) {
             mTotalUnconsumed2 += -dyUnconsumed;
             onPullUp(dyUnconsumed);
         }
     }
 
+    /**
+     * 手指释放时调用，开启一个动画让headView或者footView的height恢复
+     *
+     * @param target
+     */
     @Override
     public void onStopNestedScroll(View target) {
         if (refreshStyle == CIRCLE) {
             super.onStopNestedScroll(target);
         } else if (refreshStyle == SPREAD) {
+            //下拉刷新释放操作
             if (mTotalUnconsumed > 0 && !isRefreshing) {
                 release();
                 mTotalUnconsumed = 0;
             }
         }
-        //上拉操作
+        //上拉加载释放操作
         if (mTotalUnconsumed2 < 0) {
             release();
             mTotalUnconsumed2 = 0;
@@ -476,6 +512,22 @@ public class SwipeRefreshLoadLayout extends SwipeRefreshLayout {
         pullUpDistance = 0;
     }
 
+
+    /**
+     * 下拉刷新
+     */
+    private void onPullDown(int dy) {
+        dragAction = DRAG_ACTION_PULL_DOWN;
+        pullDownDistance += Math.abs(dy) / 2;
+        changeTipsRefresh();
+        if (onChangeViewHeight != null) {
+            onChangeViewHeight.changeHeadViewHeight(pullDownDistance);
+        }
+    }
+
+    /**
+     * 下拉刷新返回
+     */
     private void onPullDownBack(int dy) {
         dragAction = DRAG_ACTION_PULL_DOWN_BACK;
         pullDownDistance -= Math.abs(dy) / 2;
@@ -485,6 +537,9 @@ public class SwipeRefreshLoadLayout extends SwipeRefreshLayout {
         }
     }
 
+    /**
+     * 上拉加载
+     */
     private void onPullUp(int dy) {
         dragAction = DRAG_ACTION_PULL_UP;
         pullUpDistance += Math.abs(dy) / 2;
@@ -494,21 +549,15 @@ public class SwipeRefreshLoadLayout extends SwipeRefreshLayout {
         }
     }
 
+    /**
+     * 上拉加载返回
+     */
     private void onPullUpBack(int dy) {
         dragAction = DRAG_ACTION_PULL_UP_BACK;
         pullUpDistance -= Math.abs(dy) / 2;
         changeTipsLoadMore();
         if (onChangeViewHeight != null) {
             onChangeViewHeight.changeFootViewHeight(pullUpDistance);
-        }
-    }
-
-    private void onPullDown(int dy) {
-        dragAction = DRAG_ACTION_PULL_DOWN;
-        pullDownDistance += Math.abs(dy) / 2;
-        changeTipsRefresh();
-        if (onChangeViewHeight != null) {
-            onChangeViewHeight.changeHeadViewHeight(pullDownDistance);
         }
     }
 

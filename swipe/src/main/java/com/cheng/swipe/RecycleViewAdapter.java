@@ -57,6 +57,7 @@ public abstract class RecycleViewAdapter extends RecyclerView.Adapter implements
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == VIEW_TYPE_FOOT) {
             if (footViewHolder == null) {
+                //在这里判断一下是否有自定义的ViewGroup作为headView或footView
                 if (mySwipe.getFootView() == null) {
                     footViewHolder = new FootViewHolder(LayoutInflater.from(mContext).inflate(R.layout.srll_foot, null, false), true);
                 } else {
@@ -143,6 +144,7 @@ public abstract class RecycleViewAdapter extends RecyclerView.Adapter implements
             super(itemView);
             this.headView = (ViewGroup) itemView;
             if (isFromSelf) {
+                mySwipe.headViewId = headView.getId();
                 ViewGroup childAt = (ViewGroup) headView.getChildAt(0);
                 ViewGroup.LayoutParams childLayoutParams = childAt.getLayoutParams();
                 childLayoutParams.height = refreshViewHeight;

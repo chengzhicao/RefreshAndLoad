@@ -6,9 +6,11 @@ import android.util.AttributeSet;
 import android.view.View;
 
 public class SwipeLinearLayoutManager extends LinearLayoutManager {
+    private SwipeRefreshLoadLayout mySwipe;
 
-    public SwipeLinearLayoutManager(Context context) {
+    public SwipeLinearLayoutManager(Context context, SwipeRefreshLoadLayout mySwipe) {
         super(context);
+        this.mySwipe = mySwipe;
     }
 
     public SwipeLinearLayoutManager(Context context, int orientation, boolean reverseLayout) {
@@ -27,7 +29,7 @@ public class SwipeLinearLayoutManager extends LinearLayoutManager {
      */
     @Override
     public int getDecoratedBottom(View child) {
-        if (child.getId() == R.id.ll_head) {
+        if (mySwipe != null && child.getId() == mySwipe.headViewId) {
             return 1 + getBottomDecorationHeight(child);
         }
         return super.getDecoratedBottom(child);
